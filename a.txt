@@ -1,0 +1,26 @@
+int x;
+return;
+return 42;
+
+if () {}
+if () {} else {}
+
+while () {}
+for () {}
+
+struct pessoa {}
+
+break;
+continue;
+
+char c;
+short s = 1;
+long l;
+void func() {}
+
+'a';
+"hello123!@";
+"abc#$%^&+=";
+'1';
+"1.1";
+
