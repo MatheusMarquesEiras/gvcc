@@ -31,7 +31,7 @@ extern int linha;
 %token T_AND T_OR T_EQ T_NEQ T_LE T_GE
 
 %type <sval> varname type
-%type <ival> int_val expr expr_list arg_list expr_opt expr_list_opt
+%type <ival> int_val expr expr_list arg_list expr_opt expr_list_opt ptr_opt
 
 %%
 
@@ -54,8 +54,13 @@ stmt:
     ;
 
 decl:
-    type varname ';'                    { printf("Declaração de %s: %s\n", $1, $2); free($1); free($2); }
-    | type varname '=' expr ';'        { printf("%s %s = %d\n", $1, $2, $4); free($1); free($2); }
+    type ptr_opt varname ';'                    { printf("Declaração de %s com %d ponteiro(s): %s\n", $1, $2, $3); free($1); free($3); }
+    | type ptr_opt varname '=' expr ';'        { printf("%s com %d ponteiro(s): %s = %d\n", $1, $2, $3, $5); free($1); free($3); }
+    ;
+
+ptr_opt:
+    '*' ptr_opt    { $$ = $2 + 1; }
+    |              { $$ = 0; }
     ;
 
 func_call:
@@ -70,11 +75,11 @@ func_call:
     ;
 
 func_def:
-    type varname '(' ')' '{' stmt_list '}' {
-        printf("Definição de função: %s %s() { ... }\n", $1, $2); free($1); free($2);
+    type ptr_opt varname '(' ')' '{' stmt_list '}' {
+        printf("Definição de função: %s com %d ponteiro(s): %s() { ... }\n", $1, $2, $3); free($1); free($3);
     }
-    | type varname '(' arg_list ')' '{' stmt_list '}' {
-        printf("Definição de função com argumentos: %s %s(...) { ... }\n", $1, $2); free($1); free($2);
+    | type ptr_opt varname '(' arg_list ')' '{' stmt_list '}' {
+        printf("Definição de função com argumentos: %s com %d ponteiro(s): %s(...) { ... }\n", $1, $2, $3); free($1); free($3);
     }
     ;
 
@@ -159,7 +164,7 @@ type:
 %%
 
 int main() {
-    FILE *arquivo = fopen("a.txt", "r");
+    FILE *arquivo = fopen("a.cmm", "r");
     if (!arquivo) {
         perror("Erro ao abrir o arquivo");
         return 1;
@@ -170,6 +175,7 @@ int main() {
     fclose(arquivo);
     return 0;
 }
+
 
 int yyerror(const char *s) {
     fprintf(stderr, "Erro de sintaxe na linha %d: %s\n", linha, s);
